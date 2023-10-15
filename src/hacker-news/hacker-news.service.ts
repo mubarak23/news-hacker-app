@@ -1,21 +1,30 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable()
 export class HackerNewsService {
-  constructor(private httpServive: HttpService) {}
+  constructor(
+    private httpServive: HttpService,
+
+    private readonly configService: ConfigService,
+  ) {}
 
   private async fetchStoryIds(endpoint: string): Promise<number[]> {
     try {
       const response = await lastValueFrom(
         this.httpServive
-          .get(`https://hacker-news.firebaseio.com/v0/${endpoint}.json`)
+          .get(
+            `${this.configService.get<string>(
+              'hackerNewsUrl',
+            )}/item/${endpoint}.json`,
+          )
           .pipe(map((response) => response.data)),
       );
-
+      console.log('Story Id =>', response);
       return response;
     } catch (error) {
       throw new Error(`Failed to fetch ${endpoint}: ${error.message}`);
@@ -26,7 +35,11 @@ export class HackerNewsService {
     try {
       const response = await lastValueFrom(
         this.httpServive
-          .get(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`)
+          .get(
+            `${this.configService.get<string>(
+              'hackerNewsUrl',
+            )}/item/${storyId}.json`,
+          )
           .pipe(map((response) => response.data)),
       );
       if (!response || !response.title) {
@@ -69,7 +82,6 @@ export class HackerNewsService {
 
   async getLastWeekWords(): Promise<string[]> {
     const lastWeekStoryIds = await this.fetchStoryIds('newstories');
-
     // Filter story IDs created in the last week
     const oneWeekAgo = Math.floor(Date.now() / 1000) - 7 * 24 * 60 * 60;
     const lastWeekStoryIdsFiltered = lastWeekStoryIds.filter(
