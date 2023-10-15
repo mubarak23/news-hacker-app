@@ -69,6 +69,7 @@ export class HackerNewsService {
 
   async getLastWeekWords(): Promise<string[]> {
     const lastWeekStoryIds = await this.fetchStoryIds('newstories');
+
     // Filter story IDs created in the last week
     const oneWeekAgo = Math.floor(Date.now() / 1000) - 7 * 24 * 60 * 60;
     const lastWeekStoryIdsFiltered = lastWeekStoryIds.filter(
