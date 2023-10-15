@@ -17,11 +17,7 @@ export class HackerNewsService {
     try {
       const response = await lastValueFrom(
         this.httpServive
-          .get(
-            `${this.configService.get<string>(
-              'hackerNewsUrl',
-            )}/item/${endpoint}.json`,
-          )
+          .get(`https://hacker-news.firebaseio.com/v0/${endpoint}.json`)
           .pipe(map((response) => response.data)),
       );
       console.log('Story Id =>', response);
@@ -35,11 +31,7 @@ export class HackerNewsService {
     try {
       const response = await lastValueFrom(
         this.httpServive
-          .get(
-            `${this.configService.get<string>(
-              'hackerNewsUrl',
-            )}/item/${storyId}.json`,
-          )
+          .get(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`)
           .pipe(map((response) => response.data)),
       );
       if (!response || !response.title) {
